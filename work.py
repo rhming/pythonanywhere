@@ -31,7 +31,7 @@ def getLogger(name):
 class DailyTask(object):
     """
         免费pythonanywhere主机
-        web应用程序、计划任务自动续命
+        web应用程序、计划任务自动延期
     """
 
     def __getattribute__(self, name):
