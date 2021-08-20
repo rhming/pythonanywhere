@@ -7,7 +7,10 @@
 + 存储数据接口
 ```
 resp = requests.post(
-    url="https://utf8.pythonanywhere.com/store/",
+    url="https://utf8.pythonanywhere.com/",
+    params={
+        "format": "json"
+    },
     data={
         "key": "xxx", 
         "value": "xxx"
@@ -22,8 +25,9 @@ print(resp.json())
 + 读取数据接口
 ```
 resp = requests.get(
-    url="https://utf8.pythonanywhere.com/store/",
+    url="https://utf8.pythonanywhere.com/",
     params={
+        "format": "json",
         "key": "xxx"
     },
     headers={
