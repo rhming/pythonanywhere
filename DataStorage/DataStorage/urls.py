@@ -25,5 +25,5 @@ urlpatterns = [
         'post': 'insert'
     })),
     path('admin/', admin.site.urls),
-    path('store/', csrf_exempt(views.DataManagerView.as_view())),
+    # path('store/', csrf_exempt(views.DataManagerView.as_view())),
 ]

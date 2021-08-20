@@ -77,6 +77,7 @@ class TestView(viewsets.GenericViewSet):
         return Response(result)
 
 
+'''
 class DataManagerView(View):
 
     def get(self, request: HttpRequest, *args, **kwargs):
@@ -91,5 +92,5 @@ class DataManagerView(View):
         value = data.get('value', None)
         result = update_or_create(key, value)
         return JsonResponse(result)
-
+'''
 
