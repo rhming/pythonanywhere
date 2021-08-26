@@ -16,14 +16,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from DataStorage import views
-from django.views.decorators.csrf import csrf_exempt
+# from django.views.decorators.csrf import csrf_exempt
 
 
 urlpatterns = [
-    path('', views.TestView.as_view({
-        'get': 'select',
-        'post': 'insert'
-    })),
     path('admin/', admin.site.urls),
-    # path('store/', csrf_exempt(views.DataManagerView.as_view())),
+    path('', views.DataManagerView.as_view({'get': 'list', 'post': 'create'})),
 ]
+

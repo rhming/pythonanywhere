@@ -5,7 +5,7 @@ from DataStorage.models import Data
 
 class AdminData(admin.ModelAdmin):
 
-    list_display = ['key', 'format_value', 'createtime']
+    list_display = ['key', 'format_value', 'createtime', 'updatetime']
 
 
 admin.site.site_title = '数据存储'

@@ -1,96 +1,66 @@
-from django.http import HttpResponse, JsonResponse, HttpRequest
-from django.shortcuts import render
-from django.views import View
-
+from django.http import HttpRequest
 
 # Create your views here.
-from rest_framework.renderers import BrowsableAPIRenderer, JSONRenderer
 from rest_framework.response import Response
 from rest_framework import serializers
 from rest_framework import viewsets
 from DataStorage.models import Data
 
 
-# def delete(key):
-#     try:
-#         Data.objects.get(key=key).delete()
-#     except Data.DoesNotExist:
-#         pass
-
-
-def update_or_create(key, value):
-    try:
-        if not (key and value):
-            raise Exception('传输数据错误')
-        Data.objects.update_or_create(key=key, defaults={"key": key, "value": value})
-        return {
-            'msg': 'success',
-            'code': 200
-        }
-    except Exception as e:
-        return {
-            'msg': str(e),
-            'code': -1
-        }
-
-
-def query(key):
-    try:
-        data = Data.objects.get(key=key)
-        return {
-            "msg": "success",
-            "data": {
-                key: data.value,
-                "时间": data.createtime
-            },
-            "code": 200
-        }
-    except Data.DoesNotExist:
-        return {
-            "msg": "参数key错误",
-            "code": -1
-        }
-
-
-class TestSerializer(serializers.ModelSerializer):
+class DataSerializer(serializers.ModelSerializer):
     class Meta:
         model = Data
-        fields = ["key", "value", "createtime"]
+        fields = ["key", "value", "createtime", "updatetime"]
+
+    def update_or_create(self):
+        model = self.Meta.model
+        instance, _ = model.objects.update_or_create(
+            key=self.validated_data['key'],
+            defaults=self.validated_data
+        )
+        return instance.to_dict()
+
+    def get(self):
+        model = self.Meta.model
+        try:
+            instance = model.objects.get(key=self.validated_data['key'])
+        except model.DoesNotExist:
+            instance = None
+        return instance.to_dict() if isinstance(instance, model) else instance
 
 
-class TestView(viewsets.GenericViewSet):
+class DataManagerView(viewsets.ModelViewSet):
+    serializer_class = DataSerializer
+    valid = None
+    result = None
+    extra = None
 
-    renderer_classes = [BrowsableAPIRenderer, JSONRenderer, ]
-    serializer_class = TestSerializer
+    def list(self, request: HttpRequest, *args, **kwargs):
+        try:
+            data = request.GET.dict()
+            data_serializer = self.get_serializer(data=data)
+            self.valid = data_serializer.is_valid(raise_exception=True)
+            self.result = data_serializer.get()
+        except Exception as e:
+            self.valid = False
+            self.extra = e.args
+        return Response({
+            'msg': self.valid,
+            'data': self.result,
+            'extra': self.extra
+        })
 
-    def select(self, request: HttpRequest, *args, **kwargs):
-        data = request.GET
-        key = data.get('key', '')
-        result = query(key)
-        return Response(result)
-
-    def insert(self, request: HttpRequest, *args, **kwargs):
-        data = request.POST or request.data
-        key = data.get('key',  None)
-        value = data.get('value', None)
-        result = update_or_create(key, value)
-        return Response(result)
-
-
-'''
-class DataManagerView(View):
-
-    def get(self, request: HttpRequest, *args, **kwargs):
-        data = request.GET
-        key = data.get('key', '')
-        result = query(key)
-        return JsonResponse(result)
-
-    def post(self, request: HttpRequest, *args, **kwargs):
-        data = request.POST
-        key = data.get('key',  None)
-        value = data.get('value', None)
-        result = update_or_create(key, value)
-        return JsonResponse(result)
-'''
-
+    def create(self, request: HttpRequest, *args, **kwargs):
+        try:
+            data = request.POST or request.data
+            data_serializer = self.get_serializer(data=data)
+            self.valid = data_serializer.is_valid(raise_exception=True)
+            self.result = data_serializer.update_or_create()
+        except Exception as e:
+            self.valid = False
+            self.extra = e.args
+        return Response({
+            'msg': self.valid,
+            'data': self.result,
+            'extra': self.extra
+        })
