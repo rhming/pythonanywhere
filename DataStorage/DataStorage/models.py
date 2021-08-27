@@ -26,7 +26,7 @@ class Data(models.Model):
     def format_value(self):
         if len(self.value) < 50:
             return self.value
-        return f'{self.value[:25]}...{self.value[:-25]}'
+        return f'{self.value[:25]}...{self.value[-25:]}'
 
     format_value.short_description = "值"
     format_value.allow_tags = True
