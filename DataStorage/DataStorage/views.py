@@ -36,6 +36,7 @@ class DataManagerView(viewsets.ModelViewSet):
     valid = False
     result = None
     extra = None
+
     def list(self, request: HttpRequest, *args, **kwargs):
         try:
             data = request.GET
@@ -50,6 +51,7 @@ class DataManagerView(viewsets.ModelViewSet):
             'data': self.result,
             'extra': self.extra
         })
+
     def create(self, request: HttpRequest, *args, **kwargs):
         try:
             data = request.POST or request.data
