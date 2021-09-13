@@ -139,21 +139,23 @@ class DailyTask(object):
         resp = self.session.get(url=url)
         resp.encoding = 'utf8'
         data = resp.json()
-        return data[0]['id']
+        return data
 
     def taskextend(self):
         '''
             延长计划任务停运时间
         '''
-        scheduleId = self.schedule()
-        url = f'https://www.pythonanywhere.com/user/{username}/schedule/task/{scheduleId}/extend'
-        data = {
-            'csrfmiddlewaretoken': self.csrfmiddlewaretoken('task')
-        }
-        resp = self.session.post(url=url, data=data)
-        resp.encoding = 'utf8'
-        record = f'任务 状态码:{resp.status_code}'
-        self.logger.info(record)
+        scheduleList = self.schedule()
+        for sc in scheduleList:
+            scheduleId = sc['id']
+            url = f'https://www.pythonanywhere.com/user/{username}/schedule/task/{scheduleId}/extend'
+            data = {
+                'csrfmiddlewaretoken': self.csrfmiddlewaretoken('task')
+            }
+            resp = self.session.post(url=url, data=data)
+            resp.encoding = 'utf8'
+            record = f'任务 状态码:{resp.status_code}'
+            self.logger.info(record)
 
     def main(self):
         if not self.enable:
